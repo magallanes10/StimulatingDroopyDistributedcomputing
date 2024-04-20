@@ -28,29 +28,13 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         function loginUser() {
-            // You may add additional validation here if needed
-
             // For simplicity, assuming the login is successful
-            // You should replace this with actual authentication logic
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Check if the credentials match those in index.html
-            const indexHtmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index</title>
-</head>
-<body>
-    <h1>Welcome ${username}</h1>
-</body>
-</html>`;
-
-            if (indexHtmlContent.includes(username) && indexHtmlContent.includes(password)) {
+            if (username === 'admin' && password === 'hutchin') {
                 // Redirect to dashboard.html upon successful login
-                window.location.href = '/dashboard.html';
+                window.location.href = '/dashboard';
                 return false; // Prevent form submission
             } else {
                 // Handle authentication failure
