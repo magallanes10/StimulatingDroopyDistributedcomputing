@@ -85,7 +85,7 @@ app.get("/dashboard", (req, res) => {
   if (req.session.authenticated) {
     res.sendFile(path.join(publicDirectory, "dashboard.html"));
   } else {
-    res.redirect("/");
+    res.redirect("/dashboard.html");
   }
 });
 
