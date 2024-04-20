@@ -38,15 +38,12 @@ function saveUser(username, apiKey, ip) {
   const user = { username, apiKey, ip };
   users.users.push(user);
   fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2), "utf-8");
-
-  // Notify connected clients about the updated user list
   broadcastUserList();
 }
 
 function broadcastUserList() {
   const userList = users.users.map(user => ({ username: user.username, apiKey: user.apiKey }));
   const message = JSON.stringify({ type: 'userList', data: userList });
-
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(message);
@@ -58,7 +55,6 @@ async function getDownloadLink(tikTokUrl) {
   try {
     const tikTokApiUrl = `https://www.tikwm.com/api/`;
     const response = await axios.post(tikTokApiUrl, { url: tikTokUrl });
-
     if (response.data && response.data.data && response.data.data.play) {
       return response.data.data.play;
     } else {
@@ -82,7 +78,7 @@ app.use(express.json());
 app.use(express.static(publicDirectory));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(publicDirectory, "index.html"));
+  res.sendFile(path.join(publicDirectory, "login.html"));
 });
 
 app.get("/dashboard", (req, res) => {
@@ -124,7 +120,7 @@ app.post("/login", (req, res) => {
       fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2), "utf-8");
     }
 
-    res.redirect("/dashboard");
+    res.status(200).json({ message: "Authentication successful" });
   } else {
     res.status(401).json({ error: "Authentication failed" });
   }
@@ -142,13 +138,10 @@ app.get("/credits", (req, res) => {
 app.post("/video", async (req, res) => {
   try {
     const { username } = req.body;
-
     if (!username) {
       return res.status(400).json({ error: "Please provide a valid username." });
     }
-
     const apiKey = uuidv4();
-
     if (videos.videos.length > 0) {
       const randomIndex = Math.floor(Math.random() * videos.videos.length);
       const videoLink = videos.videos[randomIndex];
@@ -168,7 +161,6 @@ function saveVideoLink(videoLink) {
   if (!videos) {
     videos = { videos: [] };
   }
-
   videos.videos.push(videoLink);
   fs.writeFileSync(videosFilePath, JSON.stringify(videos, null, 2), "utf-8");
 }
@@ -180,11 +172,9 @@ app.get("/upload", (req, res) => {
 app.post("/upload", (req, res) => {
   try {
     const { videoLink } = req.body;
-
     if (!videoLink || !isValidTikTokLink(videoLink)) {
       return res.status(400).json({ error: "Please provide a valid TikTok video link." });
     }
-
     saveVideoLink(videoLink);
     res.status(201).json({ message: "Video link uploaded successfully." });
   } catch (error) {
@@ -197,31 +187,23 @@ app.get("/video/:apiKey", async (req, res) => {
   try {
     const apiKeyParam = req.params.apiKey;
     const user = users.users.find(u => u.apiKey === apiKeyParam);
-
     if (!user) {
       return res.status(401).json({ error: "Unauthorized: Invalid API key." });
     }
-
     if (videos.videos.length > 0) {
       const randomIndex = Math.floor(Math.random() * videos.videos.length);
       const tikTokUrl = videos.videos[randomIndex];
       console.log("TikTok URL:", tikTokUrl);
-
       const downloadLink = await getDownloadLink(tikTokUrl);
       console.log("Download Link:", downloadLink);
-
       if (downloadLink) {
         const videoStream = await axios({
           method: 'get',
           url: downloadLink,
           responseType: 'stream'
         }).then(res => res.data);
-
-        // Set headers for streaming video
         res.setHeader('Content-Type', 'video/mp4');
         res.setHeader('Content-Disposition', 'inline');
-
-        // Pipe the video stream directly to the response
         videoStream.pipe(res);
       } else {
         return res.status(500).json({ error: "Error retrieving TikTok video link." });
