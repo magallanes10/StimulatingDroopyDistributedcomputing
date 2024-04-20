@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload TikTok Video Link</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://cdn.lordicon.com/lordicon.js"></script>
+</head>
+<body>
+
+<div class="container mt-5">
+  <h2 class="mb-4">Upload TikTok Video Link</h2>
+
+  <form id="uploadForm">
+    <div class="form-group">
+      <label for="videoLink">Enter TikTok Video Link:</label>
+      <input type="text" class="form-control" id="videoLink" name="videoLink" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Upload Video Link</button>
+  </form>
+
+  <div id="uploadResult" class="mt-4"></div>
+  <div id="loadingIcon" style="width: 250px; height: 250px;"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+  function handleUploadFormSubmission(event) {
+    event.preventDefault();
+
+    const videoLink = document.getElementById('videoLink').value;
+    const formGroup = document.querySelector('.form-group');
+    const uploadResultContainer = document.getElementById('uploadResult');
+    const loadingIconContainer = document.getElementById('loadingIcon');
+
+    loadingIconContainer.innerHTML = '<lord-icon src="https://cdn.lordicon.com/ylvuooxd.json" trigger="loop" delay="3000" state="hover" style="width:250px;height:250px"></lord-icon>';
+
+    fetch('/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ videoLink }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      loadingIconContainer.innerHTML = ''; // Remove loading icon
+
+      if (data.error) {
+        uploadResultContainer.innerHTML = `<p>Error: ${data.error}</p>`;
+      } else {
+        uploadResultContainer.innerHTML = `<p>${data.message}</p>`;
+        document.getElementById('videoLink').value = ''; // Clear text input
+      }
+    })
+    .catch(error => {
+      console.error('Error uploading video link:', error);
+      loadingIconContainer.innerHTML = ''; // Remove loading icon
+    });
+  }
+
+  document.getElementById('uploadForm').addEventListener('submit', handleUploadFormSubmission);
+</script>
+
+</body>
+</html>

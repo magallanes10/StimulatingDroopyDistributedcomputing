@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Login</h2>
+        <form action="/login" method="post" onsubmit="return loginUser()">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function loginUser() {
+            // You may add additional validation here if needed
+
+            // For simplicity, assuming the login is successful
+            // You should replace this with actual authentication logic
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Check if the credentials match those in index.html
+            const indexHtmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+</head>
+<body>
+    <h1>Welcome ${username}</h1>
+</body>
+</html>`;
+
+            if (indexHtmlContent.includes(username) && indexHtmlContent.includes(password)) {
+                // Redirect to dashboard.html upon successful login
+                window.location.href = '/dashboard.html';
+                return false; // Prevent form submission
+            } else {
+                // Handle authentication failure
+                alert('Authentication failed. Please check your credentials.');
+                return false; // Prevent form submission
+            }
+        }
+    </script>
+</body>
+</html>
